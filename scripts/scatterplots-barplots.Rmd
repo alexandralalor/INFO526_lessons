@@ -1,0 +1,211 @@
+---
+title: "Scatterplots and Barplots"
+subtitle: "INFO 526 Data Analysis and Visualization"
+author: "Adriana Picoral"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+In this tutorial, we will focus on two types of visualizations: bar plots, and scatterplots. Like all the other tutorials in this course, this document is accompany by code-along videos, and the source code (to be found on D2L). 
+
+The learning outcomes of this tutorial include:
+
+* Produce effective bar charts and scatterplots
+* Identify visualization errors and pitfalls
+
+# Scatterplots
+
+For our first scatterplot, we will be using the `openintro` library which accompanies Çetinkaya-Rundel and Hardin's (2021) textbook (first chapter can be found to download on D2L, full book can be accessed at https://openintro-ims.netlify.app/). We will also load `scales` for some plot formatting, and `tidyverse` for the `ggplot` function.
+
+```{r}
+library(openintro)
+library(scales)
+library(tidyverse)
+```
+
+Many packages come with data in addition to functions. The package `openintro` contains all datasets used in [Introduction to Modern Statistics](https://openintro-ims.netlify.app/). We will be working with the `county`data, so let's load that using the `data()` function.
+
+```{r}
+# load data from openintro packages
+data("county")
+```
+
+We will now recreate Figure 1.2 in [Introduction to Modern Statistics](https://openintro-ims.netlify.app/). You can see the actual code that was used to render this figure in the [textbook's GitHub repository](https://github.com/OpenIntroStat/ims/blob/main/01-data-hello.Rmd). For color names, I use [this guide](http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf).
+
+For scatterplots, you usually plot two continuous numeric variables. In this case we are plotting 1) the percent of housing units that are multi-unit structures in different counties in the United States between 2006 and 2010, and 2) homeownership percentage for the same counties and time frame. We will use `geom_point` to represent each data point with a point for the x and y values. We use `anotate` and `geom_text` to replicate the original annotation in red (to highlight a specific data point). Finally we do some plot formatting using `theme_`, `labs`, and `scale_`.
+
+```{r ims_fig, fig.dim=c(7,4), fig.align='center', fig.cap="A scatterplot of homeownership versus the percent of housing units that are in multi-unit structures for US counties."}
+# recreate Figure 1.2
+county %>%
+  ggplot(aes(x = multi_unit,
+             y = homeownership)) +
+  geom_point(color = "royalblue4",
+             fill = "dodgerblue3",
+             shape = 21,
+             alpha = .3) +
+  annotate("segment",
+           x = 39.4, xend = 39.4,
+           y = 0, yend = 31.3,
+           color = "red",
+           linetype = "dashed") +
+  annotate("segment",
+           x = 0, xend = 39.4,
+           y = 31.3, yend = 31.3,
+           color = "red",
+           linetype = "dashed") +
+  geom_point(x = 39.4, y = 31.3,
+             shape = 21, color = "red") +
+  geom_text(label = "Chattahoochee County", fontface = "italic",
+            x = 55, y = 30, color = "red") +
+  theme_minimal() +
+  labs(x = "Percent of housing units that are muti-unit structures",
+        y = "Homeownership rate") +
+  scale_x_continuous(labels = percent_format(scale = 1)) +
+  scale_y_continuous(labels = percent_format(scale = 1)) 
+```
+
+## Association does not equal causation
+
+Scatterplots are meant to display the association between two variables. What we have to keep in mind, however, is that association (or correlation) is not the same as causation. There is a lot about [Spurious correlations](http://tylervigen.com/spurious-correlations). In this tutorial we will work with the classic *number of people who drowned correlates with number of filmes Nicolas cage appeared in overtime*. Here's the two data sets I was able to find:
+
+[Nicolas Cage's movies](https://www.kaggle.com/eharlett/nic-cage-movies)
+
+[Unintentional Drowning Deaths in the United States, 1999–2010](https://www.cdc.gov/nchs/data/databriefs/db149_table.pdf#1)
+
+
+```{r}
+# read data in
+drowning_deaths_nic_cage_movies <- read_csv("data/drowning_deaths_nic_cage_movies.csv")
+```
+
+The problem here is that I was unable to find the original data sets (problem of transparency). Anyway, let's calculate the correlation of these two variables with the data we have.
+
+```{r}
+drowning_deaths_nic_cage_movies %>%
+  summarize(correlation = cor(cage_movie_count, deaths))
+
+cor.test(drowning_deaths_nic_cage_movies$cage_movie_count, 
+    drowning_deaths_nic_cage_movies$deaths)
+```
+
+We will now try to recreate the original plot.
+
+```{r nic_cage_fig, fig.dim=c(7,4), fig.cap="Number of Nicholas Cage movies and number of deaths by drowning in the US."}
+# plot it
+drowning_deaths_nic_cage_movies %>%
+  ggplot(aes(x = year)) +
+  geom_point(aes(y = cage_movie_count)) +
+  geom_point(aes(y = deaths/1600),
+             color = "blue") +
+  scale_y_continuous(name = "Nicholas Cage movie count",
+                     sec.axis = sec_axis(~.*1600, name="deaths by drowning in the US"),
+                     limits = c(0, 6)) +
+  scale_x_continuous(breaks = c(1999:2010)) +
+  theme_linedraw()
+
+```
+
+Not great. The challenge stands: if you are able to find the specific data set on drownings that they use, and recreate the original plot, let everyone one in the discussion board.
+
+# Bar plots
+
+Barplots are often used to visualize the frequency distribution of a categorical variable. The idea is that we count different categories (i.e., levels) within a categorical variable. 
+
+There are geometrics functions within `ggplot` that allow you to draw up bar plots:
+
+- `geom_bar()` counts frequencies by levels within a categorical variable and plot those frequencies. You need to map the categorical variable to one of the axes only (the other axis is unmapped, since it will take the frequency values automatically)
+- `geom_col()` requires the two axes to be mapped, one axis is mapped to the categoric variable the other is mapped to the count variable.
+
+## Using geom_bar()
+
+For this short demonstration, we will be using the `penguins` dataset again. Let's load `tidyverse` and `palmerpenguins`.
+
+```{r}
+library(palmerpenguins)
+```
+
+As mentioned, you need to map one of the axes to the categorical variable for which you want to visualize the frequency distribution. Let's visualize the frequency of each species in the `penguins` dataset, mapping `species` to `x` first and then adding `geom_col()` to the code block.
+
+```{r geom_bar_plot, fig.dim=c(7,3), fig.align='center', fig.cap="Straight-forward plot of penguin specie count."}
+penguins %>%
+  ggplot(aes(x = species)) +
+  geom_bar()
+```
+
+Note that we can map the categorical variable to `y` instead.
+
+```{r horizontal_bar_plot, fig.dim=c(7,3), fig.align='center', fig.cap="Horizontal bar plot of penguin specie count."}
+penguins %>%
+  ggplot(aes(y = species)) +
+  geom_bar()
+```
+
+
+Note that the counts calculated in `geom_col()` are the same as if we were to calculate the counts ourselves.
+
+```{r}
+penguins %>%
+  count(species)
+```
+
+## Using geom_col()
+
+For `geom_col()` you need to have your data pre-counted. Let's create a new data frame with counts per `species` in the `penguins` dataset first.
+
+```{r}
+# create new data frame with species counts
+species_count_data <- penguins %>%
+  count(species)
+
+# inspect new data frame
+species_count_data
+```
+
+We now have a small data frame with two columns: `species` and `n` -- a categorical and a numeric variables. We can now use `geom_col()` by first mapping one of the axes to the categorical variable (i.e., `species`) and the other to the numeric variable (i.e., `n`).
+
+```{r geom_col_plot, fig.dim=c(7,3), fig.align='center', fig.cap="Bar plot of penguin count mapping both axis."}
+species_count_data %>%
+  ggplot(aes(x = species, y = n)) +
+  geom_col()
+```
+
+
+Most of the time we will summarize the data in some way first, and then use `geom_col()` to create barplots, since having both the categorical and the numeric variable explicitly represented in our dataset allows for reordering the bars in an easier more straightforward way.
+
+```{r reordered_plot, fig.dim=c(7,4), fig.align='center', fig.cap="Bar plot of penguin count mapping both axis with geom_col with species reordered by count."}
+species_count_data %>%
+  ggplot(aes(x = reorder(species, n), 
+             y = n)) +
+  geom_col() +
+  labs(x = "")
+```
+
+## Dealing with ordered categorical variables
+
+Data from [tidytuesday](https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-12-21/readme.md)
+
+```{r}
+starbucks <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-12-21/starbucks.csv')
+```
+
+```{r starbucks_drinks, fig.dim=c(7,4), fig.align='center', fig.cap="Mean calories across different starbucks drink sizes."}
+starbucks %>%
+  group_by(size) %>%
+  summarize(mean_calories = mean(calories),
+            n = n()) %>%
+  slice_max(order_by = n, n = 4) %>%
+  mutate(size = factor(size,
+                       levels = c("short",
+                                  "tall",
+                                  "grande",
+                                  "venti"))) %>%
+  ggplot(aes(x = size,
+             y = mean_calories)) +
+  geom_col()
+```
+
+
