@@ -1,0 +1,50 @@
+---
+title: "Barplots"
+author: "Alexandra Lalor"
+date: '2022-03-16'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(tidyverse)
+#install.packages("palmerpenguins")
+library(palmerpenguins)
+opts_chunk$set(echo = TRUE)
+```
+
+#Inspect the data
+```{r}
+glimpse(penguins)
+```
+
+```{r}
+
+#either one of these codes does the same thing
+#1
+penguins %>% 
+  ggplot(aes(x = species)) +
+  geom_bar()
+
+#2
+penguins %>% 
+  count(species) %>% 
+  ggplot(aes(x = species,
+             y = n)) +
+  geom_col()
+
+
+#now we're going to reorder categorical variables
+penguins %>% 
+  count(species) %>% 
+  ggplot(aes(x = reorder(species, n),
+             y = n)) +
+  geom_col() +
+  theme_classic() +
+  labs(x = "Penguin Species",
+       y = "Penguin Count",
+       title = "Distribution of Penguins by Species",
+       caption = "Data from palmerpenguins library")
+
+```
+
