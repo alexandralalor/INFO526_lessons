@@ -1,0 +1,68 @@
+---
+title: "Maps"
+author: "Alexandra Lalor"
+date: '2022-03-24'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(tidyverse)
+opts_chunk$set(echo = TRUE)
+```
+
+#read in data
+```{r}
+inpatient_beds <- read.csv("data_raw/module 2 data/COVID-19_Estimated_Inpatient_Beds_Occupied_by_COVID-19_Patients_by_State_Timeseries.csv")
+```
+
+
+#Summarize data
+
+```{r}
+max_beds_per_states <- inpatient_beds %>% 
+  group_by(state) %>% 
+  summarize(max_beds = max(`Inpatient.Beds.Occupied.by.COVID.19.Patients.Estimated`)) %>% 
+  rename(abb = state)
+```
+
+#plotting maps
+
+```{r}
+
+state.abb
+#this has uppercase, but usa_data has lower case.
+#use tolower() function to change it to lower case, so we can merge
+state.name
+state_info <- data.frame(abb = state.abb, 
+                         region = tolower(state.name))
+
+
+usa_data <- map_data("state") %>% 
+  left_join(state_info) %>% 
+  left_join(max_beds_per_states)
+
+#projection = black is for the state lines of the map
+#scale_fill_continuous helps to change color so that low number 
+#of beds = lighter color, and high number of beds = darker color
+usa_data %>% 
+  ggplot(aes(x = long,
+             y = lat,
+             group = group,
+             fill = max_beds)) +
+  geom_polygon(color = "black", size = 0.1) +
+  coord_map(projection = "albers", lat0 = 39, lat1 = 45) +
+  scale_fill_continuous(low = "cornsilk",
+                        high = "salmon4")
+  
+
+
+```
+
+
+
+
+
+
+
+

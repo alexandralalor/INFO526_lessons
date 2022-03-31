@@ -79,7 +79,7 @@ Scatterplots are meant to display the association between two variables. What we
 
 ```{r}
 # read data in
-drowning_deaths_nic_cage_movies <- read_csv("data/drowning_deaths_nic_cage_movies.csv")
+drowning_deaths_nic_cage_movies <- read_csv("data_raw/drowning_deaths_nic_cage_movies.csv")
 ```
 
 The problem here is that I was unable to find the original data sets (problem of transparency). Anyway, let's calculate the correlation of these two variables with the data we have.

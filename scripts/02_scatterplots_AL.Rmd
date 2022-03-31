@@ -1,0 +1,46 @@
+---
+title: "Scatterplots"
+author: "Alexandra Lalor"
+date: '2022-03-16'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#install and load in packages
+#install.packages("openintro")
+library(knitr)
+library(openintro)
+library(tidyverse)
+library(scales)
+library(ggplot2)
+opts_chunk$set(echo = TRUE)
+```
+
+# County Data Analysis
+
+We first load the data
+```{r}
+#ctrl+alt+i to make a new command block
+#load data
+data("county")
+
+#inspect data
+glimpse(county)
+
+#plot data
+
+county %>% 
+  ggplot(aes(x = multi_unit,
+             y = homeownership,
+             color = metro)) +
+  geom_point(color = "royalblue4",
+             fill = "dodgerblue3",
+             shape = 21,
+             alpha = .3) +
+  theme_minimal() +
+  scale_x_continuous(labels = percent_format(scale = 1)) +
+  scale_y_continuous(labels = percent_format(scale = 1)) +
+  labs(x = "Percent of housing units that are multi-unit structures",
+       y = "Homeownership rate")
+```
+

@@ -1,8 +1,10 @@
 ---
 title: "Overview of Visualization"
-subtitle: "INFO 526 Data Analysis and Visualization"
 author: "Adriana Picoral"
-output: pdf_document
+subtitle: INFO 526 Data Analysis and Visualization
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}

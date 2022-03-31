@@ -1,0 +1,116 @@
+---
+title: "04_histograms_AL"
+author: "Alexandra Lalor"
+date: '2022-03-23'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(tidyverse)
+install.packages("readr")
+library(readr)
+opts_chunk$set(echo = TRUE)
+```
+
+#Experimental data: load and clean data
+
+
+```{r}
+#create vector with all file names
+#never hard code file names, get them through list.files
+
+experiment_files <- c(list.files(path = "data_raw/module 2 data/Experiment 1/" , 
+                                 full.names = TRUE),
+                      list.files(path = "data_raw/module 2 data/Experiment 2/",
+                                 full.names = TRUE))
+experiment_files
+
+
+#read all files
+#keep file name in data using id = "filename"
+#separate out file name into it's useful components using 
+#separate(). Not useful components can be called X#
+#delete not useful columns using select()
+
+experiment_data <- read_tsv(experiment_files, id = "filename") %>% 
+  separate(filename,into = c("X1","X2","X3","X4","X5","X6","experiment","participant", "age", "gender","month","day","hour","minute","second","X7")) %>% 
+  select(-X1, -X2, -X3, -X4, -X5, -X6, -X7) %>%
+  mutate(age = parse_number(age))
+
+
+```
+
+#Histogram of reaction time
+
+```{r}
+experiment_data %>% 
+  ggplot(aes(x = RT,
+             fill = experiment,)) +
+  geom_histogram(binwidth = 15,
+                 alpha = 0.5,
+                 position = "identity")
+```
+
+
+```{r}
+experiment_data %>% 
+  ggplot(aes(x=RT,
+             fill = response)) +
+  geom_density(alpha = 0.5) +
+  facet_wrap(~experiment)
+```
+
+#Box plot of Reaction Time
+
+```{r}
+experiment_data %>% 
+  filter(response != "NO_RESPONSE") %>% 
+  ggplot(aes(x = experiment,
+             y = RT,
+             fill = response)) +
+  geom_boxplot()
+```
+
+
+#stacked barplots
+
+```{r}
+experiment_data %>% 
+  ggplot(aes(x = experiment,
+             fill = gender)) +
+  geom_bar()
+```
+
+#Caclulate Percentages
+
+```{r}
+percent_gender_experiment <- experiment_data %>% 
+  group_by(experiment, gender) %>% 
+  summarize(count = n()) %>% 
+  mutate(total = sum(count),
+         percentage = count/total)
+
+percent_gender_experiment %>% 
+  ggplot(aes(x = experiment,
+            fill = gender,
+            y = percentage)) +
+  geom_col()
+```
+
+Pie chart
+people hate pie charts so it's not obvious how to do it in r
+Humans are not good at looking at differences in angles, which is why pie charts aren't prefered.
+
+
+```{r}
+percent_gender_experiment %>% 
+  filter(experiment == "1") %>% 
+  ggplot(aes(x = experiment,
+             y = percentage,
+             fill = gender)) +
+  geom_col() +
+  coord_polar("y", start = 0) +
+  theme_void()
+```
+

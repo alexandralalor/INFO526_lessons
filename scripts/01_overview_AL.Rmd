@@ -1,0 +1,53 @@
+---
+title: "Visualization Overview"
+author: "Alexandra Lalor"
+date: '2022-03-16'
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+#load libraries
+library(knitr)
+library(ggthemes)
+library(tidyverse)
+```
+
+# Scatterplot
+
+Start by creating the simulated data to visualize.
+
+```{r}
+#ctrl+alt+i creates an r block
+#set seed to get reproducible results
+#so you get the same random numbers
+set.seed(42)
+
+#create random data set
+my_random_data <- data.frame(x = runif(100),
+                             y = runif(100),
+                             size=runif(100),
+                             type = c(rep("A", times = 99), "B"))
+
+
+```
+
+Let's visualize it!
+
+```{r}
+my_random_data %>% 
+  ggplot(aes(x=x,
+             y=y,
+             shape=type,
+             color=type,)) +
+  geom_point() +
+  scale_color_colorblind() +
+  theme_linedraw()
+```
+
+
+
+
