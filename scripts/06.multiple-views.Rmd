@@ -1,0 +1,130 @@
+---
+title: "Multiple Views"
+subtitle: "INFO 526 Data Analysis and Visualization"
+author: "Adriana Picoral"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+# The temperature of emotions
+
+We will be open science experimental data on [the temperature of emotions](https://osf.io/tcbg5/) for this part of the tutorial. I downloaded the csv file from the osf.io website and placed it inside the data folder in my project. As usual, we will load tidyverse and read the data in.
+
+```{r}
+library(tidyverse)
+emotion_temperature <- read_csv("data_raw/module 3 data/dte_exp1.csv")
+glimpse(emotion_temperature)
+```
+## Data Inspection
+
+Let's do a quick inspection on the categorical variables in the data. In addition to `count()` I will be using `kable()` to make the tables look nice in the output document.
+
+### How many observations per language do we have?
+
+```{r}
+# create table with counts of data points per participant language, sort table
+# since language is an unordered categorical variable
+emotion_temperature %>%
+  count(UserLanguage, sort = TRUE) %>%
+  kable(caption = "Number of observations per language group")
+```
+
+### How many participants per language group?
+
+We have multiple observations per participant, so we need to first ensure we extract distinct participant IDs per language group to then count observations.
+
+```{r}
+emotion_temperature %>%
+  distinct(rid, UserLanguage) %>%
+  count(UserLanguage, sort = TRUE) %>%
+  kable(caption = "Number of participants per language group")
+```
+
+### What are the demographics of the participants, besides language?
+
+To get more in depth on participants' demographics, let's create a dataframe with distinct info related to each participant.
+
+```{r}
+participant_info <- emotion_temperature %>%
+  distinct(rid, UserLanguage, firstlang, age, gender, country)
+
+participant_info %>%
+  head() %>%
+  kable(caption = "First six participants, and their demographic information")
+```
+
+Participant IDs should not repeat in the table above. Let's check that that's actually the case.
+
+```{r}
+# are there any repeated participant IDs? Count IDs and filter to see if any
+# ID has count higher than 1
+participant_info %>%
+  count(rid, sort = TRUE) %>%
+  filter(n > 1)
+```
+
+No repeated IDs, so everything looks good, we might proceed with our `participant_info` data analysis.
+
+### What is the average participant age?
+
+```{r}
+participant_info %>% 
+  group_by(country) %>%
+  summarize(mean_age = mean(age)) %>%
+  kable(caption = "Mean participant age per gender group",
+        digits = 0)
+
+view(emotion_temperature)
+```
+
+Now that we have a general idea of who the participants are (and I encourage you to explore the other categorical variables in the data in a similar way), we will proceed to the actual experimental data.
+
+## Visualizing responses by language and emotion
+
+To better visualize the value of `response` across different categorical variables, we will be using multiple views to split our plot into subplots. 
+
+If you are curious about the work that goes into creating palettes, you can watch [this conference presentation on the viridis palette](https://youtu.be/xAoljeRJ3lU?t=1032).
+
+```{r}
+library(tidytext)
+emotion_temperature %>%
+  group_by(emotion, UserLanguage)  %>% 
+  summarize(mean_response = mean(response)) %>% 
+  ggplot(aes(y = reorder_within(emotion, mean_response, UserLanguage),
+             x = mean_response,
+             color = mean_response)) +
+  geom_point() +
+  facet_wrap(~UserLanguage, scales = "free_y") +
+  #scale_color_continuous(type = "viridis") +
+  #scale_color_gradient(low = "blue", high = "red") +
+  scale_color_gradientn(colours = hcl.colors(5, "Berlin")) +
+  scale_y_reordered() +
+  theme(legend.position = "none") +
+  labs(y = "",
+       title = "Average response per emotion across language group")
+
+```
+
+```{r fig.height=10}
+emotion_temperature %>%
+  filter(gender != "Other") %>%
+  group_by(emotion, UserLanguage, gender)  %>% 
+  summarize(mean_response = mean(response)) %>% 
+  ggplot(aes(y = UserLanguage,
+             x = mean_response,
+             color = mean_response)) +
+  geom_point() +
+  facet_grid(emotion~gender, scales = "free_y") +
+  #scale_color_continuous(type = "viridis") +
+  #scale_color_gradient(low = "blue", high = "red") +
+  scale_color_gradientn(colours = hcl.colors(5, "Berlin")) +
+  theme(legend.position = "none",
+        strip.text = element_text(size = 5)) +
+  labs(y = "",
+       title = "Average response per emotion across language group")
+```
+

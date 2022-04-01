@@ -1,0 +1,139 @@
+---
+title: "Scales"
+subtitle: "INFO 526 Data Analysis and Visualization"
+author: "Adriana Picoral"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+# TV show ratings
+
+We will be working with two [subsets of IMDb data](https://www.imdb.com/interfaces/) that are available for access to customers for personal and non-commercial use.
+
+`title.episode.tsv` contains the tv episode information. Fields include:
+
+* tconst (string) - alphanumeric identifier of episode
+* parentTconst (string) - alphanumeric identifier of the parent TV Series
+* seasonNumber (integer) – season number the episode belongs to
+* episodeNumber (integer) – episode number of the tconst in the TV series
+
+`title.ratings.tsv` contains the IMDb rating and votes information for titles. Fields include:
+
+* tconst (string) - alphanumeric unique identifier of the title
+* averageRating – weighted average of all the individual user ratings
+* numVotes - number of votes the title has received
+
+We first read both files in, which I downloaded from the [IMDb website](https://datasets.imdbws.com/) and added to my `data` folder in my project.
+
+```{r}
+library(tidyverse)
+imdb_ratings <- read_tsv("data/title.ratings.tsv")
+series_data <- read_tsv("data/title.episode.tsv")
+```
+
+Then we merge the files with `left_join()` using the `series_data` data frame as the reference.
+
+```{r}
+series_data_complete <- series_data %>%
+  left_join(imdb_ratings)
+```
+
+The data is very messy, we will be looking at the variables `episodeNumber` and `seasonNumber` so we will parse these variables as number and limit our observations to a seasons up to 30 and episode up to 20. This will make the data more manageable for visualization.
+
+```{r}
+series_data_clean <- series_data_complete %>%
+  mutate(episodeNumber = parse_number(episodeNumber),
+         seasonNumber = parse_integer(seasonNumber)) %>%
+  filter(episodeNumber > 0 & episodeNumber < 21 &
+           seasonNumber < 31 & !is.na(averageRating &
+                                        numVotes > 0))
+```
+
+## Multiple views and scale transformation
+
+We will be using the `patchwork` library here to compare two plots of the same data side-by-side. Instead of just outputting the plots directly, we will save them as objects first and then combine them.
+
+```{r}
+library(patchwork)
+
+# create first plot, save it to an object
+original_plot <- series_data_clean %>%
+  ggplot(aes(x = averageRating,
+             y = numVotes)) +
+  geom_point(alpha = .3) +
+  labs(title = "Original number of votes")
+
+# created plot with transformed axis, save it to an object
+transformed_plot <- series_data_clean %>%
+  ggplot(aes(x = averageRating,
+             y = numVotes)) +
+  geom_point(alpha = .3) +
+  scale_y_log10() +
+  labs(title = "Log-transformed number of votes")
+
+# output both plots side by side (need patchwork library for this to work)
+original_plot + transformed_plot
+```
+
+The idea behind log transforming a variable is to display a nonlinear relationship as a linear relationship, so plots are easier to read. Log transformation is often apply to count data (like our `numVotes` variable in this data set), which is often skewed. 
+
+## Mean rating across seasons and episodes
+
+The hypothesis here is that quality of episodes overall decreases over time. In other words, for later seasons and later episodes, rating will be lower.
+
+Let's create aggregated data by season and episode, by calculating the mean of average rating. We will make sure to remove NAs with `na.rm = TRUE` (alth.
+
+```{r}
+episode_season_rating <- series_data_clean  %>%
+  group_by(seasonNumber, episodeNumber) %>%
+  summarize(mean_rating = mean(averageRating, na.rm = TRUE))
+```
+
+We can now visualize our aggregated data on a heat map with the viridis color scheme.
+
+```{r}
+episode_season_rating %>%
+  ggplot(aes(x = seasonNumber,
+             y = episodeNumber,
+             fill = mean_rating)) +
+  geom_tile() +
+  scale_fill_continuous(type = "viridis") 
+```
+
+We can also visualize the same data with a scatterplot instead of a heatmap.
+
+```{r}
+episode_season_rating %>%
+  ggplot(aes(x = seasonNumber,
+             y = mean_rating,
+             color = episodeNumber)) +
+  geom_point() +
+  geom_point(shape = 21,
+             color = "black",
+             alpha = .3) +
+  scale_color_gradientn(colours = hcl.colors(5, palette = "Grays", rev = TRUE)) +
+  theme_linedraw() 
+```
+
+Note the y scale in the plot above -- it has a very limited range, and one could argue that displaying the full range of possible ratings (from 1 to 10) is a more accurate representation of the rating variation. In the case of the plot above, variation is represented less dramatically, since the the larger y scale flattens the differences in ratings across season number.
+
+```{r}
+episode_season_rating %>%
+  ggplot(aes(x = seasonNumber,
+             y = mean_rating,
+             color = episodeNumber)) +
+  geom_point() +
+  geom_point(shape = 21,
+             color = "black",
+             alpha = .3) +
+  scale_color_gradientn(colours = hcl.colors(5, palette = "Grays", rev = TRUE)) +
+  theme_linedraw() +
+  ylim(1,10)
+```
+```
+
+

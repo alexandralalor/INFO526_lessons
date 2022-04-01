@@ -1,0 +1,40 @@
+---
+title: "05_multiple-views_AL"
+output: html_document
+date: '2022-03-31'
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(tidyverse)
+library(ggthemes)
+library(tidytext)
+opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+#Data
+
+```{r}
+emotion_temperature <- read.csv("data_raw/module 3 data/dte_exp1.csv")
+```
+
+There are a total of `r emotion_temperature %>% distinct(rid) %>% nrow()` participants divided into `r emotion_temperature %>% distinct(UserLanguage) %>% nrow()` language groups: `r emotion_temperature %>% distinct(UserLanguage) %>% pull(UserLanguage)`.
+
+#Visualizing responses by language and emotion
+
+```{r}
+emotion_temperature %>% 
+  group_by(emotion, UserLanguage) %>% 
+  summarize(mean_response = mean(response, na.rm = TRUE)) %>% 
+  ggplot(aes(y = reorder_within(UserLanguage, mean_response, UserLanguage),
+             x = mean_response,
+             fill = mean_response)) +
+  geom_col() +
+  facet_wrap(~emotion, scales = "free_y") +
+  scale_y_reordered() +
+  scale_fill_gradientn(colors = hcl.colors(5, "Berlin")) +
+  theme(legend.position = "none") +
+  labs(y="") +
+  xlim(0,5)
+```
+

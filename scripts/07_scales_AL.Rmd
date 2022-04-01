@@ -1,0 +1,89 @@
+---
+title: "Scales"
+author: "Allie Lalor"
+output: html_document
+date: '2022-03-31'
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(tidyverse)
+opts_chunk$set(echo = TRUE, message = F, warning = F)
+```
+
+#TV show ratings
+
+```{r}
+rating_data <- read_tsv("data_raw/module 3 data/title.ratings.tsv")
+series_data <- read_tsv("data_raw/module 3 data/title.episode.tsv")
+
+series_data_complete <- series_data %>% 
+  left_join(rating_data) %>% 
+  filter(!is.na(averageRating))
+
+series_data_clean <- series_data_complete %>% 
+  mutate(episodeNumber = parse_number(episodeNumber),
+         seasonNumber = parse_number(seasonNumber)) %>% 
+  filter(episodeNumber > 0 & episodeNumber <21 & seasonNumber <31 & numVotes >0)
+
+```
+#Multiple views and scale transformation
+
+```{r}
+series_data_clean %>% 
+  ggplot(aes(x = averageRating,
+             y = numVotes)) +
+  geom_point(alpha = 0.3) +
+  scale_y_log10()
+```
+
+#Mean rating across seasons and episodes
+
+```{r}
+
+episode_season_rating <- series_data_clean %>% 
+  group_by(seasonNumber, episodeNumber) %>% 
+  summarize(mean_rating = mean(averageRating))
+
+```
+#heat map
+
+```{r}
+episode_season_rating %>% 
+  ggplot(aes(x = seasonNumber,
+             y = episodeNumber,
+             fill = mean_rating)) +
+  geom_tile() +
+  scale_fill_continuous(type = "viridis") +
+  theme_linedraw()+
+  labs(y = "Episode Number",
+       x = "Season Number",
+       fill = "Mean Rating",
+       title = "Average Rating of TV Show Episodes",
+       subtitle = "Across Season and Episode Number",
+       caption = "data from imbd.com")
+```
+
+
+```{r}
+episode_season_rating %>% 
+  ggplot(aes(x = seasonNumber,
+             y = mean_rating,
+             color = episodeNumber)) +
+  geom_point() +
+  geom_point(shape = 21,
+             color = "black",
+             alpha = 0.3) +
+  scale_color_gradientn(colors = hcl.colors(5, palette = "Grays", rev = T)) +
+  theme_linedraw() +
+  ylim(1, 10)
+```
+
+```{r}
+episode_season_rating %>% 
+  ggplot(aes(x = seasonNumber,
+             y = mean_rating)) +
+  geom_col() +
+  facet_wrap(~episodeNumber)
+```
+
