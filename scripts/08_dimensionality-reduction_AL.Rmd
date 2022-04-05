@@ -32,4 +32,64 @@ ggpairs(book_descriptions,
   scale_color_colorblind() +
   scale_fill_colorblind()
 ```
+#Principal Component Analysis (PCA)
+
+```{r}
+book_desc_narrower <- book_descriptions %>% 
+  select(ADJ, AUX, NOUN, PRON, VERB)
+
+head(book_desc_narrower)
+
+#run pca
+prcomp_books <- prcomp(book_desc_narrower,
+                       rank = 2)
+
+glimpse(prcomp_books)
+```
+
+Variance explained for each original varible
+
+```{r}
+#give variance explained
+data.frame(variable_name = c("ADJ", "AUX", "NOUN", "PRON", "VERB"),
+           variance_explained = (prcomp_books$sdev / sum(prcomp_books$sdev))) %>% 
+  kable(digits = 2)
+
+
+
+```
+
+How variables load on the different principle components
+
+```{r}
+prcomp_books$rotation %>% 
+  data.frame() %>% 
+  kable(digits = 2)
+```
+
+Plot observations onto two dimensions
+```{r}
+pca_books_df <- prcomp_books$x %>%
+  data.frame()
+
+
+pca_books_df$type <- book_descriptions %>% 
+  pull(type)
+
+pca_books_df %>% 
+  ggplot(aes(x = PC1,
+             y = PC2,
+             color = type)) +
+  geom_point(alpha = 0.3) +
+  scale_color_colorblind()
+```
+
+```{r}
+#plot in 1 dimension with a boxplot
+
+pca_books_df %>% 
+  ggplot(aes(x = type,
+             y = PC1)) +
+  geom_boxplot()
+```
 
