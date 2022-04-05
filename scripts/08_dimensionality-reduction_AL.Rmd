@@ -1,0 +1,35 @@
+---
+title: "Dimensionality-Reduction"
+author: "Alexandra Lalor"
+date: '2022-04-05'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(tidyverse)
+library(ggthemes)
+library(GGally)
+opts_chunk$set(echo = TRUE, message = F, warning = F)
+```
+
+# Book Data
+
+Here's what the data looks like:
+```{r}
+#read data in
+book_descriptions <- read_csv("data_raw/module_4_data/book_data.csv")
+glimpse(book_descriptions)
+```
+
+```{r}
+#if you just add scale_color_colorblind, you will only change scatterplot colors
+#you need to make the fill color also colorblind
+ggpairs(book_descriptions,
+        columns = c("ADJ", "NOUN", "PRON", "VERB"),
+        aes(color = type, alpha = .3),
+        upper = list(continuous = wrap("cor", size = 3))) +
+  scale_color_colorblind() +
+  scale_fill_colorblind()
+```
+

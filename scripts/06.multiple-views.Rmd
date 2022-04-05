@@ -78,7 +78,7 @@ participant_info %>%
   kable(caption = "Mean participant age per gender group",
         digits = 0)
 
-view(emotion_temperature)
+review(emotion_temperature)
 ```
 
 Now that we have a general idea of who the participants are (and I encourage you to explore the other categorical variables in the data in a similar way), we will proceed to the actual experimental data.

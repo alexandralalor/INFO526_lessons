@@ -1,0 +1,196 @@
+---
+title: "Dimensionality Reduction for Visualization"
+subtitle: "INFO 526 Data Analysis and Visualization"
+author: "Adriana Picoral"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+
+Our sight perception system does not allow us to see in more dimensions than three, yet a lot of the data we produce in the world has more than three dimensions. We at this point should be convinced that visualization can produce powerful insights into data, so the solution for the problem of multidimensionality is to reduce the data dimensions so it can be visualized on a 2d or 3d plot.
+
+Dimensionality reduction combines original variables into fewer variables, removing redudant information. Each method has its own advantages and disadvantages, and which method of dimension reduction you should use depends largely on your data and your question.
+
+# Types of words for different types of books
+
+For this tutorial we will be working with part-of-speech of words in descriptions of two different types of books: [science fiction books](https://www.kaggle.com/datasets/tanguypledel/science-fiction-books-subgenres) and [programming books](https://www.kaggle.com/datasets/thomaskonstantin/top-270-rated-computer-science-programing-books).
+
+
+The words for each book description were labeled for [part of speech](https://universaldependencies.org/u/pos/), and then these labels were count for each description. Our hypothesis is that different types of books will be described differently, some types of books will require descriptions with more adjectives (e.g., helpful, important) or more verbs (e.g., lives, traveled). The frequencies (number of adjectives, number of verbs, and so on) are then normalized by the total number of words in the description. So all frequencies are between 0 and 1.
+
+```{r}
+library(tidyverse)
+book_descriptions <- read_csv("data/book_data.csv")
+glimpse(book_descriptions)
+```
+
+## Overview of variables
+
+We can quickly visualize the distribution and correlation of variables and all the pairs that are made among the variables using `ggpairs()` function from the `GGally` library.
+
+```{r}
+library(GGally)
+library(ggthemes)
+ggpairs(book_descriptions,
+        columns = c("ADJ", "NOUN", "PRON", "VERB"),
+        aes(color = type, alpha = .3),
+        upper = list(continuous = wrap("cor", size = 3))) +
+  scale_color_colorblind() +
+  scale_fill_colorblind() +
+  theme()
+```
+
+At this point you should be familiar with scatterplots and density plots. In addition, the visualization above shows the correlation between variables. The plot above shows that sci-fi book descriptions (in yellow) seem to have fewer adjectives than programming book descriptions, fewer nouns, but more pronouns and verbs. Nouns (e.g., hero, book, language) usually have complementary distribution to pronouns (e.g., it, they, him, she) since these two word types act as subject and object in sentences (so the more of one word type, the fewer the other type). A total of four variables is not too much, so a plot like the one above is perfect fine to visualize all variables. However, it's not uncommon for data sets to have hundreds or even thousands of variables. Dimensionality reduction is useful not only for visualization, but other applications like machine learning.
+
+## Uniform manifold approximation and projection (UMAP)
+
+UMAP is a general-purpose dimension reduction algorithm.  This projection method is computationally efficient and it best used with a large number of variables. Its main advantage is that it recovers well-separated clusters, using a relatively fast algorithm.
+
+The disadvantage is that there's a number of hyperparameters that need to be adjusted to optimize clustering, such as number of neighbors, minimum distance, and spread. In adition to optimizing these hyperparameters, the data analyst would also play with which variables to include in the algorithm to produce better separated clusters.
+
+Here's an example of how to run UMAP using the `uwot` library.
+
+```{r}
+# load library
+library(uwot)
+
+# calculate dimensions based on all 16 numeric variables
+umap_books <- umap(book_descriptions[, 1:16],
+                   n_neighbors = 20,
+                   min_dist = 5,
+                   spread = 10)
+
+# transform output (originally a vector) to a dataframe
+umap_books_df <- umap_books %>%
+  data.frame()
+
+# add description type to dataframe
+umap_books_df$type <- book_descriptions %>% 
+  pull(type)
+
+# build visualization
+umap_books_df %>%
+  ggplot(aes(x = X1,
+             y = X2,
+             color = type)) +
+  geom_point() +
+  theme_linedraw() +
+  scale_color_colorblind()
+```
+
+
+## T-distributed stochastic neighbor embedding (t-SNE)
+
+T-distributed Stochastic Neighbor Embedding (t-SNE) is similar to UMAP in the sense that its main goal is to split the data into clusters. While it usually does a better job in clustering than UMAP, it's computationally expensive. It also has a number of hyperparameters that need to be optimized to get better clustering. 
+
+```{r}
+# load library
+library(Rtsne)
+
+# set seed because there's a random element to this algorithm
+set.seed(11)
+
+# run algorithm with all 16 variables.
+tsne_books <- Rtsne(book_descriptions[, 1:16],
+                    pca = FALSE,
+                    perplexity = 10,
+                    theta = 0.0,
+                    check_duplicates = FALSE)
+
+# transform output in a data frame for visualization
+tsne_books_df <- tsne_books$Y %>%
+  data.frame() 
+
+# add description type to dataframe
+tsne_books_df$type <- book_descriptions %>% 
+  pull(type)
+
+# plot it
+tsne_books_df %>%
+  ggplot(aes(x = X1,
+             y = X2,
+             color = type)) +
+  geom_point() +
+  theme_linedraw() +
+  scale_color_colorblind()
+```
+
+## Principal Component Analysis (PCA)
+
+PCA is one of the most used dimensionality reduction algorithm. It's a rotation methods, used to combine correlated variables into a set of linearly uncorrelated variables or dimensions (a.k.a. principal components). Its advantages is that the dimensions can be interpreted. For that reason, interpretability, we will limit our variables to four variables that we know have an impact on different types of texts.
+
+```{r}
+# select a few variables
+book_desc_variables <- book_descriptions %>%
+  select(ADJ, NOUN, PRON, VERB)
+```
+
+We will use the function `prcomp` from base R to run pca. We don't need to scale and center our variables because they are all the same scale. We can run the function with its default parameters.
+
+```{r}
+# run pca
+prcomp_books <- prcomp(book_desc_variables)
+```
+
+The other advantage of PCA is that we can get the variance explained of original variable in our data.
+
+```{r}
+# variance explained for all dimensions
+data.frame(variable = c("ADJ", "NOUN", "PRON", "VERB"),
+           variance_explained = (prcomp_books$sdev / sum(prcomp_books$sdev))) %>%
+  kable(digits = 2)
+```
+
+Let's prepare our data for plotting.
+
+```{r}
+# put output in a dataframe
+pca_books_df <- prcomp_books$x %>%
+  data.frame()
+
+pca_books_df$type <- book_descriptions %>%
+  pull(type)
+```
+
+We can start with a scatterplot of the two principal components that explain the variance in the data more than the other two.
+
+```{r}
+# plot it
+pca_books_df %>%
+  ggplot(aes(x = PC1,
+             y = PC2,
+             color = type)) +
+  geom_point(alpha = .5) +
+  theme_linedraw() +
+  scale_color_colorblind()
+```
+
+It seems we can focus on the first dimension only.
+
+```{r}
+# do a boxplot instead
+pca_books_df %>%
+  ggplot(aes(y = PC1, x = type)) +
+  geom_boxplot() +
+  theme_linedraw()
+```
+
+We can interpret what that dimension means by looking at how the original variables load on each dimension.
+
+```{r}
+# how original variables load on each dimension
+prcomp_books$rotation %>%
+  data.frame() %>%
+  kable(digits = 2)
+```
+
+
+
+
+
+
+
