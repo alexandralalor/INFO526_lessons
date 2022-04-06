@@ -1,0 +1,32 @@
+---
+title: "Viz Critique 1"
+author: "Alexandra Lalor"
+date: '2022-04-06'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(tidyverse)
+library(ggplot2)
+opts_chunk$set(echo = TRUE, message = F, warning = F)
+```
+
+Read in data
+```{r}
+fire_seasonality <- read_csv("data_raw/viz_critique/fire-seasonality.csv")
+
+fire_seasonality[fire_seasonality == 0] = NA
+
+?is.na
+
+fire_seasonality %>% 
+  filter(!is.na(Number_Studies)) %>% 
+  ggplot(aes(y = Mechanism,
+             x = Number_Studies,
+             fill = Climate)) +
+  geom_col(position = "dodge") +
+  scale_x_continuous(breaks = 0:12) +
+  ggtitle("Evidence of Fire Seasonality Effects \n on Plant Population Persistence")
+```
+

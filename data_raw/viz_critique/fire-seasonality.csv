@@ -1,0 +1,36 @@
+Mechanism,Climate,Number_Studies
+Adult survival and growth,Tropical,3
+Adult survival and growth,Mediterranean,1
+Adult survival and growth,Temperate,12
+Adult survival and growth,Dry,0
+Adult survival and growth,Continental,3
+Post-fire flowering and seed production,Tropical,1
+Post-fire flowering and seed production,Mediterranean,3
+Post-fire flowering and seed production,Temperate,1
+Post-fire flowering and seed production,Dry,0
+Post-fire flowering and seed production,Continental,2
+Pre-fire seed bank availability,Tropical,4
+Pre-fire seed bank availability,Mediterranean,4
+Pre-fire seed bank availability,Temperate,1
+Pre-fire seed bank availability,Dry,3
+Pre-fire seed bank availability,Continental,0
+Juvenile growth and maturation,Tropical,0
+Juvenile growth and maturation,Mediterranean,0
+Juvenile growth and maturation,Temperate,3
+Juvenile growth and maturation,Dry,0
+Juvenile growth and maturation,Continental,1
+Seed heat tolerance,Tropical,1
+Seed heat tolerance,Mediterranean,3
+Seed heat tolerance,Temperate,0
+Seed heat tolerance,Dry,0
+Seed heat tolerance,Continental,1
+Post-fire seed survival,Tropical,0
+Post-fire seed survival,Mediterranean,2
+Post-fire seed survival,Temperate,5
+Post-fire seed survival,Dry,2
+Post-fire seed survival,Continental,0
+Post-fire seedling establishment,Tropical,0
+Post-fire seedling establishment,Mediterranean,2
+Post-fire seedling establishment,Temperate,3
+Post-fire seedling establishment,Dry,1
+Post-fire seedling establishment,Continental,0
