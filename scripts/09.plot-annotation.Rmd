@@ -1,0 +1,167 @@
+---
+title: "Annotating Plots"
+subtitle: "INFO 526 Data Analysis and Visualization"
+author: "Adriana Picoral"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+We will focus on how to use text on this tutorial to annotate a timeseries. We will be getting data from two sources: annotation data will be scraped from [a news website](https://abcnews.go.com/Business/gamestop-timeline-closer-saga-upended-wall-street/story?id=75617315) using the `revest` package, and stock closing prices for GameStop will be downloaded from [Yahoo! Finance](https://finance.yahoo.com/quote/GME/history?p=GME).
+
+Our visualization will be of GameStop closing prices for their stock between December 2020 and March 2021.
+
+# Scraping text data from a website
+
+We will start with scraping data from [a website which contains information on the timeline for the changes in GameStop stock prices](https://abcnews.go.com/Business/gamestop-timeline-closer-saga-upended-wall-street/story?id=75617315).
+
+The first step is to read the html page in.
+
+```{r}
+# load libraries
+library(tidyverse)
+library(rvest)
+
+# scrape text from news website
+# set URL
+article_url <- "https://abcnews.go.com/Business/gamestop-timeline-closer-saga-upended-wall-street/story?id=75617315"
+
+# read the URL into an object that holds the html code for the page
+article_html <- read_html(article_url)
+```
+
+Once we have the HTML page, we can parse for HTML nodes. For this specific page, the information we want is in `<h3>` tags.
+
+```{r}
+article_html %>%
+  html_nodes("h3") 
+```
+
+We can add to this by parsing the text in these HTML tags.
+
+```{r}
+article_html %>%
+  html_nodes("h3") %>%
+  html_text()
+```
+
+If we transform the output into a dataframe, we can then transform it.
+
+```{r}
+# save character vector to an object
+raw_text <- article_html %>%
+  html_nodes("h3") %>%
+  html_text()
+
+# create a dataframe with raw text
+gme_annotation <- data.frame(original_text = raw_text)
+```
+
+We can split the date from the event text.
+
+```{r}
+# split date and annotation
+gme_annotation <- gme_annotation %>%
+  separate(original_text, sep = ":",
+           into = c("date", "event"))
+
+gme_annotation
+```
+
+We can filter out the line that has `NA` for event.
+
+```{r}
+gme_annotation <- gme_annotation %>%
+  filter(!is.na(event)) 
+```
+
+Then we focus on the date. We first inspect it and try to convert it to a date data format.
+
+```{r}
+gme_annotation %>%
+  pull(date)
+
+gme_annotation %>%
+  mutate(date = gsub("\\.", "", date),
+         updated_date = parse_datetime(date,
+                               format = "%b %d, %Y")) %>%
+  select(date, updated_date)
+```
+
+Looks good, so we can make the change to the actual dataframe.
+
+```{r}
+gme_annotation <- gme_annotation %>%
+  mutate(date = gsub("\\.", "", date),
+         date = parse_datetime(date,
+                               format = "%b %d, %Y"))
+```
+
+We have everything we need for our annotation.
+
+# Getting data from stock prices
+
+For the stock prices, we will get data from [Yahoo](https://finance.yahoo.com/quote/GME/history?p=GME). We will use `janitor` to `clean_names()` and lowercase the column names from the original data.
+
+```{r}
+library(janitor)
+gme_data <- read_csv("data/GME.csv") %>%
+  clean_names()
+```
+
+We can now merge the stock prices dataframe with annotation dataframe, since both have a column called `date` that is a date format.
+
+```{r}
+# merge dataframes, using the largest dataframe as the reference (i.e. left)
+gme_data <- gme_data %>%
+  left_join(gme_annotation)
+```
+
+# Visualization
+
+We will plot our stock price data on a line using `geom_line()`, with points only for the data we have annotations for. We will annotate the timeseries using `geom_label()` but from the `ggrepel` package. We will also use `annotate()`. Because of the number of annotations labels (11 total), we need to create a custom color scheme. The x scale is adjusted with `filter` and the y axis is set for a dollar format.
+
+```{r}
+library(ggthemes)
+library(ggrepel)
+library(RColorBrewer)
+library(scales)
+
+my_color_scheme <- c(brewer.pal(n = 8, name = "Dark2"),
+                     rev(brewer.pal(n = 3, name = "Dark2")))
+
+gme_data %>%
+  filter(date > as.Date("2020-12-01") &
+           date < as.Date("2021-03-01")) %>%
+  ggplot(aes(x = date,
+             y = close,
+             label = event,
+             color = event)) +
+  geom_line(color = "black") +
+  geom_point(data = gme_data %>% filter(!is.na(event))) +
+  geom_label_repel(size = 1.8,
+                   nudge_y = 200) + 
+  scale_y_continuous(limits = c(0, 600),
+                     labels = scales::dollar_format(),
+                     breaks = c(0, 100, 200, 300, 350)) +
+  #scale_color_brewer(type = "qual", palette = "Paired") +
+  scale_color_manual(values = my_color_scheme) +
+  geom_hline(yintercept = 347.51,
+             color = "dimgrey",
+             linetype = "dashed") +
+  annotate("text",
+           x = as.POSIXct("2020-12-20"),
+           y = 375,
+           color = "dimgrey",
+           label = "Stock Closing High: $347.51") +
+  theme_linedraw() +
+  theme(panel.grid = element_blank(),
+        legend.position = "none") +
+  labs(title = "GameStop Stock Closing Price Fluctuation",
+       subtitle = "between December 2020 and March 2021",
+       caption = "data from finance.yahoo.com and abcnews.go.com") 
+```
+

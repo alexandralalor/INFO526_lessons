@@ -1,0 +1,13 @@
+---
+title: "Annotating Plots"
+author: "Alexandra Lalor"
+date: '2022-04-13'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(tidyverse)
+opts_chunk$set(echo = TRUE)
+```
+
