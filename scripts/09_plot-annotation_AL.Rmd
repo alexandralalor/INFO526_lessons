@@ -8,6 +8,44 @@ output: html_document
 ```{r setup, include=FALSE}
 library(knitr)
 library(tidyverse)
-opts_chunk$set(echo = TRUE)
+library(rvest)
+library(janitor)
+opts_chunk$set(echo = TRUE, message = F, warning = F)
+```
+
+#GameStop Stock Prices
+
+# Data Annotation Scraping from Website
+```{r}
+# scrape text from news website
+# set URL
+my_url <- "https://abcnews.go.com/Business/gamestop-timeline-closer-saga-upended-wall-street/story?id=75617315"
+
+# read the URL into an object that holds the html code for the page
+my_webpage <- read_html(my_url)
+
+#parse for h3 notes
+raw_text <- my_webpage %>%
+  html_elements("h3") %>% 
+  html_text()
+
+#create the dataframe
+gme_annotation <- data.frame(text = raw_text) %>% 
+  separate(text, sep = ":",
+           into = c("date","event")) %>% 
+  filter(!is.na(event))
+
+#deal with date
+gme_annotation <- gme_annotation %>% 
+  mutate(date = gsub("\\.", "", date),
+         date = parse_datetime(date,
+                                   format = "%b %d, %Y"))
+```
+
+GME Stock Price Data
+
+```{r}
+gme_data <- read_csv("data_raw/module_5_data/GME.csv")
+head(gme_data)
 ```
 

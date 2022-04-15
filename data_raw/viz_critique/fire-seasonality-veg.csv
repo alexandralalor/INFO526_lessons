@@ -1,0 +1,36 @@
+Mechanism,Veg,Number_Studies
+Adult survival and growth,Forest,5
+Adult survival and growth,Woodland,1
+Adult survival and growth,Savanna,10
+Adult survival and growth,Shrubland,2
+Adult survival and growth,Grassland,1
+Post-fire flowering and seed production,Forest,2
+Post-fire flowering and seed production,Woodland,2
+Post-fire flowering and seed production,Savanna,2
+Post-fire flowering and seed production,Shrubland,0
+Post-fire flowering and seed production,Grassland,1
+Pre-fire seed bank availability,Forest,0
+Pre-fire seed bank availability,Woodland,1
+Pre-fire seed bank availability,Savanna,4
+Pre-fire seed bank availability,Shrubland,5
+Pre-fire seed bank availability,Grassland,2
+Juvenile growth and maturation,Forest,1
+Juvenile growth and maturation,Woodland,3
+Juvenile growth and maturation,Savanna,0
+Juvenile growth and maturation,Shrubland,0
+Juvenile growth and maturation,Grassland,0
+Seed heat tolerance,Forest,2
+Seed heat tolerance,Woodland,1
+Seed heat tolerance,Savanna,0
+Seed heat tolerance,Shrubland,1
+Seed heat tolerance,Grassland,1
+Post-fire seed survival,Forest,0
+Post-fire seed survival,Woodland,2
+Post-fire seed survival,Savanna,0
+Post-fire seed survival,Shrubland,7
+Post-fire seed survival,Grassland,0
+Post-fire seedling establishment,Forest,1
+Post-fire seedling establishment,Woodland,2
+Post-fire seedling establishment,Savanna,0
+Post-fire seedling establishment,Shrubland,3
+Post-fire seedling establishment,Grassland,0
