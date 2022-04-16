@@ -10,6 +10,9 @@ library(knitr)
 library(tidyverse)
 library(rvest)
 library(janitor)
+library(ggrepel)
+library(scales)
+library(RColorBrewer)
 opts_chunk$set(echo = TRUE, message = F, warning = F)
 ```
 
@@ -45,7 +48,46 @@ gme_annotation <- gme_annotation %>%
 GME Stock Price Data
 
 ```{r}
-gme_data <- read_csv("data_raw/module_5_data/GME.csv")
-head(gme_data)
+gme_data <- read_csv("data_raw/module_5_data/GME.csv") %>% 
+  clean_names() %>% 
+  left_join(gme_annotation)
+```
+#Plot Data
+
+Now we are plotting the data:
+
+```{r}
+
+my_color_scheme <- c(brewer.pal(n=8, name = "Dark2"),
+                     brewer.pal(n=4, name = "Dark2"))
+
+gme_data %>% 
+  filter(date > as.Date("2020-12-01") & 
+           date < as.Date("2021-03-15")) %>% 
+  ggplot(aes(x = date,
+             y = close,
+             color = event,
+             label = event)) +
+  geom_line(color = "black") +
+  geom_point(data = gme_data %>% filter(!is.na(event))) +
+  geom_label_repel(size = 1.8,
+                   nudge_y = 175) +
+  scale_y_continuous(labels = dollar_format(),
+                     limits = c(0,600),
+                     breaks = c(seq(0, 350, by = 50))) +
+  scale_color_manual(values = my_color_scheme) +
+  geom_hline(yintercept = 347.51,
+             color = "dimgrey",
+             linetype = "dashed") +
+  annotate("text",
+           x = as.POSIXct("2020-12-20"),
+           y = 375,
+           label = "Stock Closing High: $347.51",
+           color = "dimgrey") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        panel.grid = element_blank())
+  
+
 ```
 
