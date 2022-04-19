@@ -30,18 +30,29 @@ fire_climate %>%
 ```
 
 ```{r}
+#read in data
 fire_veg <- read_csv("data_raw/viz_critique/fire-seasonality-veg.csv")
 
+#replace 0 with NA
 fire_veg[fire_veg == 0] = NA
 
-fire_veg %>% 
+#create column to add all studies per Mechanism
+fire_veg <- fire_veg %>% 
   filter(!is.na(Number_Studies)) %>% 
-  ggplot(aes(y = Mechanism,
+  group_by(Mechanism) %>% 
+  mutate(Total_Studies = sum(Number_Studies))
+
+#visualize
+fire_veg %>% 
+  ggplot(aes(y = reorder(Mechanism, Total_Studies),
              x = Number_Studies,
              fill = Veg)) +
-  geom_col() +
+  geom_col(alpha = 0.8) +
   scale_x_continuous(breaks = 0:20) +
   theme_minimal() +
-  ggtitle("Evidence of Fire Seasonality Effects \n on Plant Population Persistence")
+  ggtitle("Evidence of Fire Seasonality Effects \n on Plant Populations") +
+  ylab("Mechanism") +
+  xlab("Number of Studies")
+
 ```
 
