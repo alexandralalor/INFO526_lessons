@@ -1,0 +1,86 @@
+---
+title: "Fixing Bad Visualizations"
+author: "Alexandra Lalor"
+date: '2022-04-25'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(tidyverse)
+library(ggthemes)
+opts_chunk$set(echo = TRUE, message = F, warning = F)
+```
+
+# Homicides by Firearms
+
+```{r}
+homicides_firearm_deaths <- read.csv("data_raw/module_7_data/firearm-homicide-injury-deaths.csv")
+view(homicides_firearm_deaths)
+```
+
+
+```{r}
+homicides_firearm_deaths %>% 
+  mutate(annotation = ifelse(year == 1999 |
+                               year == 2016,
+                             deaths, NA)) %>% 
+  ggplot(aes(x = year,
+             y = deaths,
+             group = 1)) +
+  geom_area(fill = "firebrick",
+            alpha = 0.9) +
+  geom_line() +
+  geom_point(size = 2) +
+  geom_point( color = "white", 
+              shape = 21,
+              size = 2) +
+  geom_text(aes(label = annotation),
+            vjust = -1) +
+  theme_minimal() +
+  scale_y_continuous(limits = c(0, 16000)) +
+  scale_x_continuous(breaks = seq(1999, 2016, by = 2)) +
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank()) +
+  labs(title = "Firearm homicides in the US",
+       subtitle = "Number of homicides commited using firearms",
+       caption = "data from catalog.data.gov")
+```
+# Google Mobility data
+
+```{r}
+us_mobility_data <- read.csv("data_raw/module_7_data/us-mobility-data.csv")
+```
+
+
+```{r fig.height=10}
+us_mobility_data %>% 
+  group_by(month, year, place) %>% 
+  summarize(mean_change = mean(change_from_baseline)) %>% 
+  mutate(month = factor(month,
+                        levels = c("January",
+                                   "February",
+                                   "March",
+                                   "April",
+                                   "May",
+                                   "June",
+                                   "July",
+                                   "August",
+                                   "September",
+                                   "October",
+                                   "November",
+                                   "December"))) %>% 
+  ggplot(aes(x = mean_change,
+             y = fct_rev(month),
+             fill = place)) +
+  geom_col() +
+  scale_fill_colorblind() +
+  facet_wrap(~year, ncol = 1) +
+  theme_minimal() +
+  labs(title = "Mobility change in percentage",
+                subtitle = "in the US, across places",
+                y = "",
+                x = "mean baseline change in percentage poitns",
+                caption = "data from google.com/covid19/mobility")
+```
+
