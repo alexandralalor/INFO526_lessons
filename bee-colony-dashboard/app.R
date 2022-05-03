@@ -12,10 +12,8 @@ library(shiny)
 library(tidyverse)
 library(scales)
 
-setwd("C:/Users/allielalor/Documents/INFO526_lessons/bee-colony-dashboard")
-
-colony <- read_csv("module_6_data/colony.csv")
-stressor <- read_csv("module_6_data/stressor.csv")
+colony <- read_csv("bee-colony-dashboard/module_6_data/colony.csv")
+stressor <- read_csv("bee-colony-dashboard/module_6_data/stressor.csv")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(

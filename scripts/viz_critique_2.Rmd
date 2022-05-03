@@ -1,0 +1,130 @@
+---
+title: "Data Viz Critique 2"
+author: "Alexandra Lalor"
+date: '2022-05-02'
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(echo = TRUE, warning = F)
+```
+
+
+## Background
+
+For this data viz critique, I will be updating figure 2 from the article [Low Availability of Code in Ecology: A Call for Urgent Action (Culina et al. 2020)](https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.3000763), using code [004_plotting.R](https://zenodo.org/record/3833928#.Ym9XNNrMI2w) from the original ariticle. I referenced data collection [methods](https://asanchez-tojar.github.io/code_in_ecology/supporting_information.html) as supporting information and used [Cleveland's Dot Plots](https://rpkgs.datanovia.com/ggpubr/reference/ggdotchart.html) as the primary figure.
+
+## Methods
+
+This paper is a review of ecology journals, and the accessibility of code in articles published by these journals. The authors randomly sampled articles published in ecology journals for which code-sharing has been either mandatory or encouraged since June 2015 at the latest. 
+
+A total of 14 out of 96 (15%) ecological journals encourage code-sharing policies. From these journals, a random sample of 400 articles was taken. Articles were further screened for relevancy, leaving 346 studies in this review.
+
+Based on the information collected, the authors scored the journals’ code-sharing policies as:
+
+* **encouraged**: publication of the code is explicitly encouraged, but not required
+* **mandatory**: code must be published together with the article
+* **encouraged/mandatory**: when the wording made it difficult to judge if code publication is encouraged or required
+
+
+
+### Read in original data
+
+```{r}
+#load packages
+library(ggpubr)
+library(tidyverse)
+
+#read in data
+full.journal.info <- read_csv("data_raw/viz_critique/code_availability.csv")
+```
+
+
+### Original figure
+
+```{r}
+ggdotchart(full.journal.info, x = "abbreviations", y = "percentage",
+                      color = "Policy",
+                      palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+                      sorting = "descending",
+                      add = "segments",
+                      rotate = TRUE,
+                      group = "Policy",
+                      xlab = "",
+                      ylab = "Percentage (%) of articles publishing some code",
+                      dot.size = 8,
+                      label = paste0(round(full.journal.info$codepublished,0),"/",
+                                     round(full.journal.info$total,0)),
+                      font.label = list(color = "black", size = 7,vjust = 0.5),
+                      ggtheme = theme_pubr())
+```
+
+### Orignial figure comments
+
+1. The category "Encouraged/Mandatory" is confusing, because I don't understand the overlap between these two categories. Looking back at the methods, we find that the definition of **"encouraged/mandatory"** is when the wording made it *difficult to judge if code publication is encouraged or required*. Based off this definition, I would argue that if code sharing is not explicitly required then it is not mandatory. Therefore, I will redefine these categories when creating my new visualization.
+
+2. The fractions within the colored circles are difficult to read, and only upon close examination do we see the wide variation in number of articles reviewed per journal. I'd like to create a visualization which shows percentage as well as total number of articles under review.
+
+3. I would add a title to this figure.
+
+4. I like the dotplot display of data overall, so I want to maintain this. I would change the color of the "Mandatory" policy to something besides red, because code sharing should be viewed as a positive thing while red conveys negativity.
+
+5. What is the main focus of this figure? I think it's to show me that percentage of articles publishing code is very similar regardless if policies require code publishing. My updated graph will try to communicate the same message, but more clearly. I can do this by adjusting the policy categorizations and adding a title.
+
+
+
+### Mutate data
+
+```{r}
+#mutate policy column, add count column, merge
+code_availability_1 <- full.journal.info %>% 
+  mutate(Policy_sort = ifelse(Policy == "Encouraged/Mandatory", "Encouraged_total", 
+                              ifelse(Policy == "Encouraged", "Encouraged_total", "Mandatory_total"))) %>% 
+  mutate(count = total) %>% 
+  mutate(Policy = "Total") %>% 
+  mutate(percentage = round((count/total)*100))
+
+code_availability_2 <- full.journal.info %>% 
+  mutate(Policy_sort = ifelse(Policy == "Encouraged/Mandatory", "Encouraged_published", 
+                         ifelse(Policy == "Encouraged", "Encouraged_published", "Mandatory_published"))) %>% 
+  mutate(count = codepublished) %>% 
+  mutate(Policy = ifelse(Policy_sort == "Encouraged_published", "Encouraged", "Mandatory")) %>% 
+  mutate(percentage = round((count/total)*100))
+
+code_availability <- rbind(code_availability_1,code_availability_2)
+```
+
+
+### Updated figure
+
+```{r}
+
+#visualize
+code_availability %>%
+  ggdotchart(x = "abbreviations", 
+             y = "count",
+             color = "Policy",
+             palette = c("#00AFBB", "#E7B800", "#D3D3D3"),
+             sorting = "descending",
+             rotate = TRUE,
+             group = "Policy",
+             add = "segments",
+             title = "Ecology journals with code-sharing policies \nstill have low availability of code",
+             xlab = "",
+             ylab = "Number of articles with published code (color) of those reviewed (grey)",
+             dot.size = 7,
+             label = paste0(code_availability$percentage,"%"),
+             label.select = list(criteria = "Policy %in% c('Encouraged','Mandatory')"),
+             font.label = list(color = "black", size = 7,vjust = 0.5),
+             ggtheme = theme_pubr())
+```
+
+### Updated figure comments
+
+In this figure, number of articles is shown on the x-axis (rather than percent). Grey circles show the totoal number of articles under review, and colored circles show the number of articles with published code. Percentages are added to colored circles to show how each colored circle compares to the grey circles.
+
+By updating the figure, I can more clearly see the difference between "encouraged" and "mandatory" policies, and it becomes evident that mandatory policies are not successful at improving code access. The figure now has a clear title which communicates this message, and more nuanced display of number of total articles, number of articles with published code, and percent articles as an additional aid to show low code availability.
+

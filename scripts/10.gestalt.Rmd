@@ -1,0 +1,139 @@
+---
+title: "Gestalt Principles"
+subtitle: "INFO 526 Data Analysis and Visualization"
+author: "Adriana Picoral"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+# Gestalt Principles
+
+We humans are extremely good at finding patterns, even when no pattern exists. This ability to perceive different shapes and lines as a unified image rather than just a bunch of elements that are not related to each other follow what we call *Gestalt* principles (Healy, 2018). These principles state that visual elements are perceived as being related to each other when these elements are:
+
+1. close to each other -- i.e., *Proximity* principle
+1. similar in shape, color and size -- i.e., *Similarity* principle
+1. visually tied -- i.e., *Connection* principle
+1. perceived as being part paths, lines, curves, even when some elements are "hidden" -- i.e., *Continuity* principle
+1. not complete; we construct the incomplete form into familiar shapes  -- i.e., *Closure* principle
+1. perceived to be either in the foreground or in the background together  -- i.e., *Figure and Ground* principle
+1. perceived are sharing a direction of movement -- i.e., *Common fate* principle
+
+
+Let's first create simulation data, with 4 different groups, to create a plot that illustrates the principles above.
+
+```{r}
+library(tidyverse)
+# create simulation data
+my_circles <- data.frame(y = rep(c(1:4), 8), 
+                         x = c(rep(1, 4),
+                               rep(2, 4),
+                               rep(3, 4),
+                               rep(4, 4),
+                               rep(5, 4),
+                               rep(6, 4),
+                               rep(7, 4),
+                               rep(8, 4))) %>%
+  mutate(group = ifelse(y %% 2 == 0,
+                        "A", "B"),
+         group_shape = ifelse(x %% 2 == 0,
+                        "A", "B"),
+         group_line = case_when(y == 1 ~ "A",
+                                y == 2 ~ "B",
+                                y == 3 ~ "C",
+                                y == 4 ~ "D"),
+         x = x/2,
+         y = y/2)
+```
+
+Figure 1 shows how elements are perceived to be grouped different according to different principles.
+
+```{r gestalt, fig.cap="Grouping is done by different principles: proximity, similarity (i.e., color and shape, and connection).", fig.height=12}
+# first plot with circles with no color
+p1 <- my_circles %>%
+  filter(x != 3) %>%
+  ggplot(aes(x = x,
+             y = y)) +
+  geom_point(size = 10, color = "white") +
+  geom_point(size = 10,
+         color = "black",
+         fill = "white",
+         stroke = 2,
+         shape = 1) +
+  theme_minimal() +
+  ylim(-1, 2.1) +
+  xlim(-1, 4.1) +
+  labs(x = "", y = "") +
+  theme(panel.grid = element_blank(),
+        axis.text = element_blank(),
+        legend.position = "none") +
+  scale_color_manual(values = c("white", "royalblue3"))
+
+# second plot uses color to establish groupings
+p2 <- my_circles %>%
+  filter(x != 3) %>%
+  ggplot(aes(x = x,
+             y = y)) +
+  geom_point(size = 10,
+         aes(color = group)) +
+  geom_point(size = 10,
+         color = "black",
+         fill = "white",
+         stroke = 2,
+         shape = 1) +
+  theme_minimal() +
+  ylim(-1, 2.1) +
+  xlim(-1, 4.1) +
+  labs(x = "", y = "") +
+  theme(panel.grid = element_blank(),
+        axis.text = element_blank(),
+        legend.position = "none") +
+  scale_color_manual(values = c("white", "royalblue3"))
+
+# third plot links circles for grouping data points horizontally
+p3 <- my_circles %>%
+  filter(x != 3) %>%
+  ggplot(aes(x = x,
+             y = y)) +
+  geom_line(aes(group = group_line)) +
+  geom_point(size = 10,
+            color = "white") +
+  geom_point(size = 10,
+         color = "black",
+         fill = "white",
+         shape = 1) +
+  theme_minimal() +
+  ylim(-.1, 2.1) +
+  xlim(-1, 4.1) +
+  labs(x = "", y = "") +
+  theme(panel.grid = element_blank(),
+        axis.text = element_blank(),
+        legend.position = "none") +
+  scale_color_manual(values = c("white", "royalblue3"))
+
+# fourth plot uses shaping for grouping
+p4 <- my_circles %>%
+  filter(x != 3) %>%
+  ggplot(aes(x = x,
+             y = y)) +
+  geom_point(size = 10,
+         color = "black",
+         fill = "white",
+         aes(shape = group_shape)) +
+  theme_minimal() +
+  ylim(-1, 2.2) +
+  xlim(-1, 4.1) +
+  labs(x = "", y = "") +
+  theme(panel.grid = element_blank(),
+        axis.text = element_blank(),
+        legend.position = "none") +
+  scale_color_manual(values = c("white", "royalblue3"))
+
+
+# display all plots together (need patchwork library for this)
+library(patchwork)
+p1 / p2 / p3 / p4
+```
