@@ -31,39 +31,69 @@ for(i in 1:length(folder_names_list)) {
     separate(Suffix, sep = "_",
              into = c("PhotoID","Segmented","Suffix")) %>% 
     separate(Suffix, into = c("Cropped", "FileType")) %>% 
-    mutate(FileType = tolower(FileType)) %>% 
+    mutate(FileType = toupper(FileType)) %>% 
     mutate(Date = parse_datetime(Date,
                                  format = "%B %d %Y"))
+  file_add <- file_names_df %>% 
+    select(-c("Data_raw", "Final_project", "Photos", "Stage", "PhotoID", "Segmented", "Cropped", "FileType"))
 }
 
 #create condensed version to add to color data, we don't need all this other stuff
 file_add <- file_names_df %>% 
   select(-c("Data_raw", "Final_project", "Photos", "Stage", "PhotoID", "Segmented", "Cropped", "FileType"))
 
+#Make a df of picture colors, include file info for the specific tree
+#Make sure that row in file_add is equal to number in file path...
+for(i in 1:length(file_path)) {
+  pic_crop <- file_path[i]
+  file_add_1 <- file_add[i,]
+  tree <- data.frame(get_colors(pic_crop, exclude_col = "black", exclude_rad = 50))
+  rgb <- rotate_df(as.data.frame(col2rgb(tree$col_hex)))
+  rownames(rgb) <- c(1:nrow(tree))
+  tree_rgb <- cbind(file_add_1, rgb, tree)
+}
 
 
 ################################################################################
-
-#load in pic_segmented_crop, for practice
-pic_crop <- "data_raw/final_project/Photos/August 26 2021/Final/PIPO10 Ambient+HW Drought DSC00273_segmented_crop.jpg"
-
-
+# 
+##load in pic_segmented_crop, for practice
+# pic_crop <- "data_raw/final_project/Photos/August 26 2021/Final/PIPO10 Ambient+HW Drought DSC00273_segmented_crop.jpg"
+# 
+#
 ################################################################################
-#create a data frame from get_colors
-
-#define colors (black, grey)
-
-
-#exclude colors
-tree <- data.frame(get_colors(pic_crop, exclude_col = "black"))
-
-
-
+##explore colors, figure out which exclusion methods is best
+#
+##define colors (black, grey)
+# grey <- gray.colors(256, start = 0, end = 1, gamma = 2.2, alpha = NULL, rev = FALSE)
+# black1 <- rgb(0:40, 0, 0, maxColorValue = 255)
+# black2 <- rgb(0, 0:40, 0, maxColorValue = 255)
+# black3 <- rgb(0, 0, 0:40, maxColorValue = 255)
+# black1_2 <- append(black1, black2)
+# black <- append(black1_2, black3)
+# black_grey <- append(black, grey)
+#
+# black.ctr <- c(0,0,0)
+# black.radii <- 0.15
+# black.select <- countcolors::countColors(pic_crop,
+#                                          center = black.ctr,
+#                                          radius = black.radii,
+#                                          bg.lower = NULL,
+#                                          plotting = TRUE)
+#
+# pic_crop %>%
+#   get_colors(exclude_col = "black", exclude_rad = 50) %>%
+#   plot_colors_3d(sample_size = 5000, marker_size = 2.5, color_space = "RGB")
+#
+#
 ################################################################################
-#add RGB data into data frame from the hex codes column
-rgb <- rotate_df(as.data.frame(col2rgb(tree$col_hex)))
-rownames(rgb) <- c(1:nrow(tree))
-tree_rgb <- cbind(file_add, rgb, tree)
+# 
+# tree <- data.frame(get_colors(file_path, exclude_col = "black"))
+# 
+# #add RGB data into data frame from the hex codes column
+# rgb <- rotate_df(as.data.frame(col2rgb(tree$col_hex)))
+# rownames(rgb) <- c(1:nrow(tree))
+# tree_rgb <- cbind(file_add, rgb, tree)
+# 
 
 ################################################################################
 #reducing the data frame
