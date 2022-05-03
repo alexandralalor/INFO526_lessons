@@ -26,21 +26,36 @@ ui <- fluidPage(
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30),
-            selectInput("state",
-                        "Select state:",
-                        choices = colony %>% distinct(state) %>% pull(state)
-                        )
+            h3("Data on Bee Colonies"),
+            p("The data displayed here was retrieved from:", HTML('<a href="https://github.com/rfordatascience/tidytuesday/blob/master/data/2022/2022-01-11/readme.md">Tidy Tuesday</a>'),
+              ),
+            p("Navigate through the differnt visualizations using the tabs.")
         ),
 
         # Show a plot of the generated distribution
         mainPanel(
-           plotOutput("distPlot"),
-           plotOutput("timelinePlot")
+          tabsetPanel(
+            tabPanel("Histogram", 
+                     sliderInput("bins",
+                                 "Number of bins:",
+                                 min = 1,
+                                 max = 50,
+                                 value = 30),
+                     plotOutput("distPlot")),
+            tabPanel("Timeline", 
+                     selectInput("state",
+                                 "Select state:",
+                                 choices = colony %>% distinct(state) %>% pull(state)
+                                ),
+                     sliderInput("year",
+                                 "select year:",
+                                 min = min(colony$year),
+                                 max = max(colony$year),
+                                 value = 2015,
+                                 sep = ""),
+                     plotOutput("timelinePlot"))
+          )
+           
         )
     )
 )
@@ -59,7 +74,7 @@ server <- function(input, output) {
     
     output$timelinePlot <- renderPlot({
       colony %>%
-        filter(state == input$state & year == 2015) %>% 
+        filter(state == input$state & year == input$year) %>% 
         mutate(months = factor(months,
                                levels = c("January-March","April-June","July-September","October-December"))) %>% 
         ggplot(aes(x = months,
