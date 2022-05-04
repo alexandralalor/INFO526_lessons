@@ -1,0 +1,11 @@
+Data_raw,Final_project,Photos,Date,Stage,SpeciesID,Treatment_temp,Treatment_water,PhotoID,Segmented,Cropped,FileType
+data_raw,final_project,Photos,November 5 2021,Final,PIPO10,Ambient+HW,Drought,DSC02480,segmented,crop,JPG
+data_raw,final_project,Photos,November 5 2021,Final,PIPO14,Ambient,Drought,DSC02506,segmented,crop,JPG
+data_raw,final_project,Photos,November 5 2021,Final,PIPO23,Ambient+HW,Drought,DSC02481,segmented,crop,JPG
+data_raw,final_project,Photos,November 5 2021,Final,PIPO29,Ambient+HW,Drought,DSC02482,segmented,crop,JPG
+data_raw,final_project,Photos,November 5 2021,Final,PIPO34,Ambient+HW,Drought,DSC02473,segmented,crop,JPG
+data_raw,final_project,Photos,November 5 2021,Final,PIPO39,Ambient,Drought,DSC02488,segmented,crop,JPG
+data_raw,final_project,Photos,November 5 2021,Final,PIPO42,Ambient+HW,Drought,DSC02475,segmented,crop,JPG
+data_raw,final_project,Photos,November 5 2021,Final,PIPO44,Ambient,Drought,DSC02504,segmented,crop,JPG
+data_raw,final_project,Photos,November 5 2021,Final,PIPO45,Ambient,Drought,DSC02502,segmented,crop,JPG
+data_raw,final_project,Photos,November 5 2021,Final,PIPO49,Ambient,Drought,DSC02500,segmented,crop,JPG
