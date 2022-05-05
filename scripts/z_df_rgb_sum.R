@@ -14,19 +14,19 @@ library(tools) #for file naming
 ################################################################################
 #file paths
 
-#names_df_August_26_2021 <- read.csv("data_raw/final_project/file_names/names_df_August_26_2021.csv")
-#names_df_November_11_2021 <- read.csv("data_raw/final_project/file_names/names_df_November_11_2021.csv")
-#names_df_November_19_2021 <- read.csv("data_raw/final_project/file_names/names_df_November_19_2021.csv")
-#names_df_November_5_2021 <- read.csv("data_raw/final_project/file_names/names_df_November_5_2021.csv")
-#names_df_October_15_2021 <- read.csv("data_raw/final_project/file_names/names_df_October_15_2021.csv")
-#names_df_October_21_2021 <- read.csv("data_raw/final_project/file_names/names_df_October_21_2021.csv")
-#names_df_October_29_2021 <- read.csv("data_raw/final_project/file_names/names_df_October_29_2021.csv")
-#names_df_October_7_2021 <- read.csv("data_raw/final_project/file_names/names_df_October_7_2021.csv")
-#names_df_September_16_2021 <- read.csv("data_raw/final_project/file_names/names_df_September_16_2021.csv")
-#names_df_September_2_2021 <- read.csv("data_raw/final_project/file_names/names_df_September_2_2021.csv")
-#names_df_September_24_2021 <- read.csv("data_raw/final_project/file_names/names_df_September_24_2021.csv")
-#names_df_September_30_2021 <- read.csv("data_raw/final_project/file_names/names_df_September_30_2021.csv")
-#names_df_September_9_2021 <-read.csv("data_raw/final_project/file_names/names_df_September_9_2021.csv")
+names_df_August_26_2021 <- read.csv("data_raw/final_project/file_names/names_df_August_26_2021.csv")
+names_df_November_11_2021 <- read.csv("data_raw/final_project/file_names/names_df_November_11_2021.csv")
+names_df_November_19_2021 <- read.csv("data_raw/final_project/file_names/names_df_November_19_2021.csv")
+names_df_November_5_2021 <- read.csv("data_raw/final_project/file_names/names_df_November_5_2021.csv")
+names_df_October_15_2021 <- read.csv("data_raw/final_project/file_names/names_df_October_15_2021.csv")
+names_df_October_21_2021 <- read.csv("data_raw/final_project/file_names/names_df_October_21_2021.csv")
+names_df_October_29_2021 <- read.csv("data_raw/final_project/file_names/names_df_October_29_2021.csv")
+names_df_October_7_2021 <- read.csv("data_raw/final_project/file_names/names_df_October_7_2021.csv")
+names_df_September_16_2021 <- read.csv("data_raw/final_project/file_names/names_df_September_16_2021.csv")
+names_df_September_2_2021 <- read.csv("data_raw/final_project/file_names/names_df_September_2_2021.csv")
+names_df_September_24_2021 <- read.csv("data_raw/final_project/file_names/names_df_September_24_2021.csv")
+names_df_September_30_2021 <- read.csv("data_raw/final_project/file_names/names_df_September_30_2021.csv")
+names_df_September_9_2021 <-read.csv("data_raw/final_project/file_names/names_df_September_9_2021.csv")
 
 
 
@@ -65,12 +65,16 @@ for(i in 1:length(file_names)) {
   tree <- data.frame(get_colors(pic_crop, exclude_col = black, exclude_rad = 60))
   rgb <- rotate_df(as.data.frame(col2rgb(tree$col_hex)))
   rownames(rgb) <- c(1:nrow(tree))
-  tree_rgb_1 <- cbind(file_add_1, rgb, tree)
+  tree_rgb_1 <- cbind(file_add_1, rgb, tree, row.names = NULL)
   tree_rgb <- rbind(tree_rgb, tree_rgb_1)
 }
 
 #check that all plants are added
 summarize(tree_rgb, species = unique(SpeciesID))
+
+tree_rgb %>% 
+  
+  
 
 
 #reducing the data frame
