@@ -108,8 +108,8 @@ tree_rgb_filter <- tree_rgb_filter %>%
 #make sure that tree_rgb_filter is arranged by SpeciesID, Date, col_share
 colors <- tree_rgb_filter$col_hex
 
-# write.csv(tree_rgb_filter, "data_raw/final_project/tree_rgb/tree_rgb_filter_all.csv", quote=FALSE, row.names = FALSE)
-# tree_rgb_filter <- read.csv("data_raw/final_project/tree_rgb/tree_rgb_filter_all.csv")
+# write.csv(tree_rgb_filter, "data_raw/final_project/tree_rgb_sum_filter/tree_rgb_sum_filter_all.csv", quote=FALSE, row.names = FALSE)
+# tree_rgb_sum_filter <- read.csv("data_raw/final_project/tree_rgb_sum_filter/tree_rgb_sum_filter_all.csv")
 
 #visualize
 
