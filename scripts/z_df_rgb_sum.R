@@ -72,10 +72,6 @@ for(i in 1:length(file_names)) {
 #check that all plants are added
 summarize(tree_rgb, species = unique(SpeciesID))
 
-tree_rgb %>% 
-  
-  
-
 
 #reducing the data frame
 
@@ -118,6 +114,7 @@ tree_rgb_sum <- tree_rgb %>%
             blue = round(mean(blue)),
             col_freq = sum(col_freq))
 
+
 #fill in summary df
 #add hex codes to summary df
 hex <- as.data.frame(rgb2hex(r = tree_rgb_sum$red, 
@@ -143,6 +140,12 @@ tree_rgb_sum <- tree_rgb_sum %>%
 tree_rgb_sum %>% 
   group_by(Date, SpeciesID) %>%
   summarize(percent = sum(col_share))
+
+
+
+tree_rgb %>%
+  group_by(SpeciesID == "PIPO10") %>% 
+  plot_colors_3d(sample_size = 5000, marker_size = 2.5, color_space = "RGB")
 
 #save compressed file
 write.csv(tree_rgb_sum, "data_raw/final_project/tree_rgb/tree_rgb_sum_September_9_2021.csv", quote=FALSE, row.names = FALSE)
