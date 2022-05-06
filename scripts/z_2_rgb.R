@@ -112,16 +112,33 @@ tree_rgb_September_24_2021 <- read.csv("data_raw/final_project/tree_rgb/tree_rgb
 tree_rgb_September_30_2021 <- read.csv("data_raw/final_project/tree_rgb/tree_rgb_September_30_2021.csv")
 tree_rgb_September_9_2021 <- read.csv("data_raw/final_project/tree_rgb/tree_rgb_September_9_2021.csv")
 
-#combine all dates
+#combine all dates, add weeks column
 tree_rgb_all <- rbind(tree_rgb_August_26_2021, tree_rgb_November_11_2021, tree_rgb_November_19_2021,
                       tree_rgb_November_5_2021, tree_rgb_October_15_2021, tree_rgb_October_21_2021,
                       tree_rgb_October_29_2021, tree_rgb_October_7_2021, tree_rgb_September_16_2021,
                       tree_rgb_September_2_2021, tree_rgb_September_24_2021, tree_rgb_September_30_2021,
                       tree_rgb_September_9_2021)
 
+tree_rgb_all <- tree_rgb_all %>% 
+  mutate(Week = ifelse(Date == "2021-08-26", 1,
+                       ifelse(Date == "2021-09-02", 2,
+                              ifelse(Date == "2021-09-09", 3,
+                                     ifelse(Date == "2021-09-16", 4,
+                                            ifelse(Date == "2021-09-24", 5,
+                                                   ifelse(Date == "2021-09-30", 6,
+                                                          ifelse(Date == "2021-10-07", 7,
+                                                                 ifelse(Date == "2021-10-15", 8,
+                                                                        ifelse(Date == "2021-10-21", 9,
+                                                                               ifelse(Date == "2021-10-29", 10,
+                                                                                      ifelse(Date == "2021-11-05", 11,
+                                                                                             ifelse(Date == "2021-11-11", 12, 13)))))))))))))
+#reality check
+tree_rgb_all %>% 
+  group_by(Date) %>% 
+  summarize(week = unique(Week))
 summarize(tree_rgb_all, species = unique(SpeciesID))
-summarize(tree_rgb_all, date = unique(Date))
-nrow(tree_rgb_all)
+
+
 
 write.csv(tree_rgb_all, "data_raw/final_project/tree_rgb/tree_rgb_all.csv", quote=FALSE, row.names = FALSE)
 

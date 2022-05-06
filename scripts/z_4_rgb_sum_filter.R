@@ -16,62 +16,74 @@ library(tools) #for file naming
 
 #read in df_rgb_sum
 
-# tree_rgb_sum_August_26_2021 <- read.csv("data_raw/final_project/tree_rgb/tree_rgb_sum_August_26_2021.csv")
-# tree_rgb_sum_November_11_2021 <- read.csv("data_raw/final_project/tree_rgb/tree_rgb_sum_November_11_2021.csv")
-# tree_rgb_sum_November_19_2021 <- read.csv("data_raw/final_project/tree_rgb/tree_rgb_sum_November_19_2021.csv")
-# tree_rgb_sum_November_5_2021 <- read.csv("data_raw/final_project/tree_rgb/tree_rgb_sum_November_5_2021.csv")
-# tree_rgb_sum_October_15_2021 <- read.csv("data_raw/final_project/tree_rgb/tree_rgb_sum_October_15_2021.csv")
-# tree_rgb_sum_October_21_2021 <- read.csv("data_raw/final_project/tree_rgb/tree_rgb_sum_October_21_2021.csv")
-# tree_rgb_sum_October_29_2021 <- read.csv("data_raw/final_project/tree_rgb/tree_rgb_sum_October_29_2021.csv")
-# tree_rgb_sum_October_7_2021 <- read.csv("data_raw/final_project/tree_rgb/tree_rgb_sum_October_7_2021.csv")
-# tree_rgb_sum_September_16_2021 <- read.csv("data_raw/final_project/tree_rgb/tree_rgb_sum_September_16_2021.csv")
-# tree_rgb_sum_September_2_2021 <- read.csv("data_raw/final_project/tree_rgb/tree_rgb_sum_September_2_2021.csv")
-# tree_rgb_sum_September_24_2021 <- read.csv("data_raw/final_project/tree_rgb/tree_rgb_sum_September_24_2021.csv")
-# tree_rgb_sum_September_30_2021 <- read.csv("data_raw/final_project/tree_rgb/tree_rgb_sum_September_30_2021.csv")
-# tree_rgb_sum_September_9_2021 <-read.csv("data_raw/final_project/tree_rgb/tree_rgb_sum_September_9_2021.csv")
+#CAREFUL these are slightly differnt becasue they don't include a species column
+
+# tree_rgb_sum_August_26_2021 <- read.csv("data_raw/final_project/tree_rgb_sum/tree_rgb_sum_August_26_2021.csv")
+# tree_rgb_sum_November_11_2021 <- read.csv("data_raw/final_project/tree_rgb_sum/tree_rgb_sum_November_11_2021.csv")
+# tree_rgb_sum_November_19_2021 <- read.csv("data_raw/final_project/tree_rgb_sum/tree_rgb_sum_November_19_2021.csv")
+# tree_rgb_sum_November_5_2021 <- read.csv("data_raw/final_project/tree_rgb_sum/tree_rgb_sum_November_5_2021.csv")
+# tree_rgb_sum_October_15_2021 <- read.csv("data_raw/final_project/tree_rgb_sum/tree_rgb_sum_October_15_2021.csv")
+# tree_rgb_sum_October_21_2021 <- read.csv("data_raw/final_project/tree_rgb_sum/tree_rgb_sum_October_21_2021.csv")
+# tree_rgb_sum_October_29_2021 <- read.csv("data_raw/final_project/tree_rgb_sum/tree_rgb_sum_October_29_2021.csv")
+# tree_rgb_sum_October_7_2021 <- read.csv("data_raw/final_project/tree_rgb_sum/tree_rgb_sum_October_7_2021.csv")
+# tree_rgb_sum_September_16_2021 <- read.csv("data_raw/final_project/tree_rgb_sum/tree_rgb_sum_September_16_2021.csv")
+# tree_rgb_sum_September_2_2021 <- read.csv("data_raw/final_project/tree_rgb_sum/tree_rgb_sum_September_2_2021.csv")
+# tree_rgb_sum_September_24_2021 <- read.csv("data_raw/final_project/tree_rgb_sum/tree_rgb_sum_September_24_2021.csv")
+# tree_rgb_sum_September_30_2021 <- read.csv("data_raw/final_project/tree_rgb_sum/tree_rgb_sum_September_30_2021.csv")
+# tree_rgb_sum_September_9_2021 <-read.csv("data_raw/final_project/tree_rgb_sum/tree_rgb_sum_September_9_2021.csv")
 
 #combine all dates
-# tree_rgb_sum <- rbind(tree_rgb_sum_August_26_2021, tree_rgb_sum_November_11_2021, tree_rgb_sum_November_19_2021, 
-#                       tree_rgb_sum_November_5_2021, tree_rgb_sum_October_15_2021, tree_rgb_sum_October_21_2021, 
-#                       tree_rgb_sum_October_29_2021, tree_rgb_sum_October_7_2021, tree_rgb_sum_September_16_2021, 
-#                       tree_rgb_sum_September_2_2021, tree_rgb_sum_September_24_2021, tree_rgb_sum_September_30_2021, 
+# tree_rgb_sum_all <- rbind(tree_rgb_sum_August_26_2021, tree_rgb_sum_November_11_2021, tree_rgb_sum_November_19_2021,
+#                       tree_rgb_sum_November_5_2021, tree_rgb_sum_October_15_2021, tree_rgb_sum_October_21_2021,
+#                       tree_rgb_sum_October_29_2021, tree_rgb_sum_October_7_2021, tree_rgb_sum_September_16_2021,
+#                       tree_rgb_sum_September_2_2021, tree_rgb_sum_September_24_2021, tree_rgb_sum_September_30_2021,
 #                       tree_rgb_sum_September_9_2021)
 
 #read and write csv
-#write.csv(tree_rgb_sum, "data_raw/final_project/tree_rgb/tree_rgb_sum_all.csv", quote=FALSE, row.names = FALSE)
-tree_rgb_sum <- read.csv("data_raw/final_project/tree_rgb/tree_rgb_sum_all.csv")
+#write.csv(tree_rgb_sum_all, "data_raw/final_project/tree_rgb_sum/tree_rgb_sum_all.csv", quote=FALSE, row.names = FALSE)
+
+
+########################################################################################################################
+tree_rgb_sum_all <- read.csv("data_raw/final_project/tree_rgb_sum/tree_rgb_sum_all.csv")
 
 #check that all dates are in new df
-tree_rgb_sum %>% 
+tree_rgb_sum_all %>% 
   summarize(date = unique(Date))
-  
+
+
+#Filter for col_freq >= 100
+tree_rgb_sum_all <- tree_rgb_sum_all %>% 
+  filter(col_freq >= 100) %>% 
+  arrange(desc(col_share))
+
+
 
 #filter to exclude more grey and to most frequent colors
 
-#use this space to test out the parameteres below
-tree_rgb_filter %>% 
-  group_by(Date, SpeciesID) %>% 
-  plot_colors_3d(sample_size = 5000, marker_size = 2.5, color_space = "RGB")
+#use this space to test out the parameters below
+# tree_rgb_filter %>% 
+#   group_by(Date, SpeciesID) %>% 
+#   plot_colors_3d(sample_size = 5000, marker_size = 2.5, color_space = "RGB")
 
 #method to ignore grey colors
 #identify in color space where grey colors are, and isolate them
 #add all these colors to tree_rgb_ignore dataframe
-tree_rgb_ignore <- data.frame(matrix(ncol = 14, nrow = 0))
-colnames(tree_rgb_ignore) <- c("Date", "SpeciesID", "Treatment_temp", "Treatment_water",
+tree_rgb_ignore <- data.frame(matrix(ncol = 16, nrow = 0))
+colnames(tree_rgb_ignore) <- c("Week", "Date", "Species", "SpeciesID", "Treatment_temp", "Treatment_water",
                         "red_class", "green_class", "blue_class",
                         "red", "green", "blue",
                         "col_hex", "col_freq", "col_total", "col_share")
 
-tree_rgb_ignore_1 <- tree_rgb_sum %>% 
+tree_rgb_ignore_1 <- tree_rgb_sum_all %>% 
   group_by(Date, SpeciesID) %>% 
   filter(red < 160) %>% 
   filter((red_class == green_class & red_class == blue_class))
 
-tree_rgb_ignore_2 <-tree_rgb_sum %>% 
+tree_rgb_ignore_2 <-tree_rgb_sum_all %>% 
   group_by(Date, SpeciesID) %>% 
   filter(red_class == "65-96" & green_class == "33-64" & blue_class == "33-64") 
 
-tree_rgb_ignore_3 <- tree_rgb_sum %>%
+tree_rgb_ignore_3 <- tree_rgb_sum_all %>%
   group_by(Date, SpeciesID) %>%
   filter(red_class == "97-128" & green_class == "65-96" & blue_class == "33-64")
 
@@ -82,31 +94,20 @@ tree_rgb_ignore <- rbind(tree_rgb_ignore_1, tree_rgb_ignore_2, tree_rgb_ignore_3
 #save as a vector
 colors_ignore <- tree_rgb_ignore$col_hex
 
-tree_rgb_filter <- subset(tree_rgb_sum,!(col_hex %in% colors_ignore))
+tree_rgb_sum_filter <- subset(tree_rgb_sum_all,!(col_hex %in% colors_ignore))
 
-tree_rgb_filter <- tree_rgb_filter %>% 
-  group_by(Date, SpeciesID, Treatment_temp, Treatment_water) %>% 
+tree_rgb_sum_filter <- tree_rgb_sum_filter %>% 
+  group_by(Week, Date, Species, SpeciesID, Treatment_temp, Treatment_water) %>% 
   mutate(col_total = sum(col_freq)) %>% 
   mutate(col_share = round(100*(col_freq/col_total), digits = 1)) %>% 
-  mutate(Week = ifelse(Date == "2021-08-26", 1,
-                       ifelse(Date == "2021-09-02", 2,
-                              ifelse(Date == "2021-09-09", 3,
-                                     ifelse(Date == "2021-09-16", 4,
-                                            ifelse(Date == "2021-09-24", 5,
-                                                   ifelse(Date == "2021-09-30", 6,
-                                                          ifelse(Date == "2021-10-07", 7,
-                                                                 ifelse(Date == "2021-10-15", 8,
-                                                                        ifelse(Date == "2021-10-21", 9,
-                                                                               ifelse(Date == "2021-10-29", 10,
-                                                                                      ifelse(Date == "2021-11-05", 11,
-                                                                                             ifelse(Date == "2021-11-11", 12,
-                                                                                                    ifelse(Date == "2021-11-19", 13)))))))))))))) %>% 
   arrange(SpeciesID, Date, desc(col_share))
 
+#save csv
+write.csv(tree_rgb_sum_filter, "data_raw/final_project/tree_rgb_sum_filter/tree_rgb_sum_filter_all.csv", quote=FALSE, row.names = FALSE)
 
 #save hex colors for visualization
 #make sure that tree_rgb_filter is arranged by SpeciesID, Date, col_share
-colors <- tree_rgb_filter$col_hex
+colors <- tree_rgb_sum_filter$col_hex
 
 # write.csv(tree_rgb_filter, "data_raw/final_project/tree_rgb_sum_filter/tree_rgb_sum_filter_all.csv", quote=FALSE, row.names = FALSE)
 # tree_rgb_sum_filter <- read.csv("data_raw/final_project/tree_rgb_sum_filter/tree_rgb_sum_filter_all.csv")
@@ -114,7 +115,7 @@ colors <- tree_rgb_filter$col_hex
 #visualize
 
 ### 
-tree_rgb_filter_viz <- tree_rgb_filter %>% 
+tree_rgb_filter_viz <- tree_rgb_sum_filter %>% 
   filter(SpeciesID %in% c("PIPO23","PIPO42","PIPO45","PIPO49")) %>% 
   arrange(SpeciesID, Date, desc(col_share))
 
