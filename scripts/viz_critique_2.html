@@ -387,10 +387,10 @@ code in articles published by these journals. The authors randomly
 sampled articles published in ecology journals for which code-sharing
 has been either mandatory or encouraged since June 2015 at the
 latest.</p>
-<p>A total of 14 out of 96 (15%) ecological journals encourage
-code-sharing policies. From these journals, a random sample of 400
-articles was taken. Articles were further screened for relevancy,
-leaving 346 studies in this review.</p>
+<p>A total of 14 out of 96 (15%) ecology journals encourage code-sharing
+policies. From these journals, a random sample of 400 articles was
+taken. Articles were further screened for relevancy, leaving 346 studies
+in this review.</p>
 <p>Based on the information collected, the authors scored the journals’
 code-sharing policies as:</p>
 <ul>
@@ -483,13 +483,14 @@ code_availability_1 &lt;- full.journal.info %&gt;%
                               ifelse(Policy == &quot;Encouraged&quot;, &quot;Encouraged_total&quot;, &quot;Mandatory_total&quot;))) %&gt;% 
   mutate(count = total) %&gt;% 
   mutate(Policy = &quot;Total&quot;) %&gt;% 
-  mutate(percentage = NA)
+  mutate(percentage = round((count/total)*100))
 
 code_availability_2 &lt;- full.journal.info %&gt;% 
   mutate(Policy_sort = ifelse(Policy == &quot;Encouraged/Mandatory&quot;, &quot;Encouraged_published&quot;, 
                          ifelse(Policy == &quot;Encouraged&quot;, &quot;Encouraged_published&quot;, &quot;Mandatory_published&quot;))) %&gt;% 
   mutate(count = codepublished) %&gt;% 
-  mutate(Policy = ifelse(Policy_sort == &quot;Encouraged_published&quot;, &quot;Encouraged&quot;, &quot;Mandatory&quot;))
+  mutate(Policy = ifelse(Policy_sort == &quot;Encouraged_published&quot;, &quot;Encouraged&quot;, &quot;Mandatory&quot;)) %&gt;% 
+  mutate(percentage = round((count/total)*100))
 
 code_availability &lt;- rbind(code_availability_1,code_availability_2)</code></pre>
 </div>

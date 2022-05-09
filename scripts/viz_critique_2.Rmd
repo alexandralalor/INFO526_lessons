@@ -3,8 +3,8 @@ title: "Data Viz Critique 2"
 author: "Alexandra Lalor"
 date: '2022-05-02'
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -21,7 +21,7 @@ For this data viz critique, I will be updating figure 2 from the article [Low Av
 
 This paper is a review of ecology journals, and the accessibility of code in articles published by these journals. The authors randomly sampled articles published in ecology journals for which code-sharing has been either mandatory or encouraged since June 2015 at the latest. 
 
-A total of 14 out of 96 (15%) ecological journals encourage code-sharing policies. From these journals, a random sample of 400 articles was taken. Articles were further screened for relevancy, leaving 346 studies in this review.
+A total of 14 out of 96 (15%) ecology journals encourage code-sharing policies. From these journals, a random sample of 400 articles was taken. Articles were further screened for relevancy, leaving 346 studies in this review.
 
 Based on the information collected, the authors scored the journals’ code-sharing policies as:
 
